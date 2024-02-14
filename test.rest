@@ -1,0 +1,41 @@
+### Meeting URLの全てを取得
+
+GET https://api.whereby.dev/v1/meetings
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmFwcGVhci5pbiIsImF1ZCI6Imh0dHBzOi8vYXBpLmFwcGVhci5pbi92MSIsImV4cCI6OTAwNzE5OTI1NDc0MDk5MSwiaWF0IjoxNzA3ODA2MTU3LCJvcmdhbml6YXRpb25JZCI6MjEwNzAyLCJqdGkiOiJlZWEyOTI1MS1kMzg2LTQ2OGMtYTljNS0wMzIxNDkyODZiODIifQ.89bsb8FUWM7z-M4DT5-t28z-6IGLWVgUX5MEHQx_xNA
+content-type: application/json
+
+{
+    "fields":["hostRoomUrl", "viewerRoomUrl"]
+}
+
+
+### Meeting room 削除
+@deleteMeetingId = 82649646
+DELETE https://api.whereby.dev/v1/meetings/{{deleteMeetingId}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmFwcGVhci5pbiIsImF1ZCI6Imh0dHBzOi8vYXBpLmFwcGVhci5pbi92MSIsImV4cCI6OTAwNzE5OTI1NDc0MDk5MSwiaWF0IjoxNzA3ODA2MTU3LCJvcmdhbml6YXRpb25JZCI6MjEwNzAyLCJqdGkiOiJlZWEyOTI1MS1kMzg2LTQ2OGMtYTljNS0wMzIxNDkyODZiODIifQ.89bsb8FUWM7z-M4DT5-t28z-6IGLWVgUX5MEHQx_xNA
+content-type: application/json
+
+
+###
+POST https://2a64j9q097.execute-api.ap-northeast-1.amazonaws.com/whereby
+Content-Type: application/json
+
+{
+}
+
+###
+GET http://localhost:4000/whereby?meetingId=82659495
+Content-Type: application/json
+
+{
+    "fields":["hostRoomUrl", "viewerRoomUrl"]
+}
+
+###
+GET https://api.whereby.dev/v1/meetings/82682842
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmFwcGVhci5pbiIsImF1ZCI6Imh0dHBzOi8vYXBpLmFwcGVhci5pbi92MSIsImV4cCI6OTAwNzE5OTI1NDc0MDk5MSwiaWF0IjoxNzA3ODA2MTU3LCJvcmdhbml6YXRpb25JZCI6MjEwNzAyLCJqdGkiOiJlZWEyOTI1MS1kMzg2LTQ2OGMtYTljNS0wMzIxNDkyODZiODIifQ.89bsb8FUWM7z-M4DT5-t28z-6IGLWVgUX5MEHQx_xNA
+content-type: application/json
+
+{
+    "fields":["hostRoomUrl", "viewerRoomUrl"]
+}

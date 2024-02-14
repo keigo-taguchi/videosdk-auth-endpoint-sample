@@ -1,16 +1,30 @@
-require("dotenv").config();
 const express = require("express");
-const bodyParser = require("body-parser");
-const crypto = require("crypto");
 const cors = require("cors");
 const KJUR = require("jsrsasign");
-const fetch = require("cross-fetch");
+const axios = require("axios");
+const bodyParser = require("body-parser");
 const serverlessExpress = require("@vendia/serverless-express");
 
 const app = express();
 const port = process.env.PORT || 4000;
 
-app.use(bodyParser.json(), cors());
+// CORS configuration
+app.use(
+  cors({
+    origin: "*", // Replace with specific origins if necessary
+    methods: ["GET", "POST", "OPTIONS", "DELETE"],
+    credentials: true, // Allow cookies for cross-origin requests
+  })
+);
+// urlencodedとjsonは別々に初期化する
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+app.use(bodyParser.json());
+
+// Enable OPTIONS requests for preflight
 app.options("*", cors());
 
 app.post("/zoom", (req, res) => {
@@ -48,36 +62,108 @@ app.post("/zoom", (req, res) => {
   });
 });
 
-app.post("/whereby", (req, res) => {
-  const API_KEY = process.env.WHEREBY_API_KEY;
+app.post("/whereby/delete", async (req, res) => {
+  // Get API key from secure environment variable
+  const apiKey = process.env.WHEREBY_API_KEY;
+  if (!apiKey) {
+    return res.status(401).json({ message: "Whereby API key is missing" });
+  }
+  console.log(req.body);
+  try {
+    const response = await axios.delete(
+      `https://api.whereby.dev/v1/meetings/${req.body.data.meetingId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(response);
+
+    if (response.status !== 200 && response.status !== 204) {
+      throw new Error(response.data.error);
+    }
+
+    res.send("Meeting deleted");
+  } catch (error) {
+    console.error("Error in Whereby API request:", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+});
+
+app.get("/whereby", async (req, res) => {
+  // Get API key from secure environment variable
+  const apiKey = process.env.WHEREBY_API_KEY;
+  if (!apiKey) {
+    return res.status(401).json({ message: "Whereby API key is missing" });
+  }
+  console.log(req.query);
+  try {
+    const response = await axios.get(
+      `https://api.whereby.dev/v1/meetings/${req.query.meetingId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    82684369;
+    if (response.status !== 200 && response.status !== 204) {
+      throw new Error(response.data.error);
+    }
+
+    res.send(response.data.roomUrl);
+  } catch (error) {
+    console.error("Error in Whereby API request:", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+});
+
+app.post("/whereby", async (req, res) => {
+  // Get API key from secure environment variable
+  const apiKey = process.env.WHEREBY_API_KEY;
+  if (!apiKey) {
+    return res.status(401).json({ message: "Whereby API key is missing" });
+  }
+
+  // Validate user input (if applicable)
 
   const data = {
-    endDate: "2099-02-18T14:23:00.000Z",
-    fields: ["hostRoomUrl"],
+    endDate: "2024-02-14T14:23:00.000Z",
+    fields: ["hostRoomUrl", "viewerRoomUrl"],
   };
-  fetch("https://api.whereby.dev/v1/meetings", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  }).then(async (res) => {
-    console.log("Status code:", res.status);
-    const data = await res.json();
-    console.log("Room URL:", data.roomUrl);
-    console.log("Host room URL:", data.hostRoomUrl);
-  });
-  res.json({
-    data,
-  });
+
+  try {
+    const response = await axios.post(
+      "https://api.whereby.dev/v1/meetings",
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status !== 201) {
+      throw new Error(response.data.error);
+    }
+
+    res.json({
+      response: response.data,
+    });
+  } catch (error) {
+    console.error("Error in Whereby API request:", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
 });
-if (process.env.NODE_ENV === `develop`) {
-  app.listen(port, () =>
-    console.log(
-      `Zoom Video SDK Auth Endpoint Sample Node.js listening on port ${port}!`
-    )
-  );
-}
+
+app.listen(port, () =>
+  console.log(
+    `Zoom Video SDK Auth Endpoint Sample Node.js listening on port ${port}!`
+  )
+);
 
 exports.handler = serverlessExpress({ app });
